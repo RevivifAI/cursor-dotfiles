@@ -5,7 +5,7 @@ alwaysApply: true
 
 # RevivifAI — General Code Standards
 
-These standards apply to **all** languages and surfaces in this repo (application code, configs, infra-as-code where relevant). For Python specifics, also follow `.cursor/rules/revivifai-python-standards.mdc`.
+These standards apply to **all** programming languages in this repo (application code, configs, infra-as-code where relevant). For Python specifics, also follow `.cursor/rules/revivifai-python-standards.mdc`.
 
 ## Comments
 

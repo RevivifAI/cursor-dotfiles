@@ -1,0 +1,29 @@
+---
+description: Use the "Keep a Changelog" 1.1.0 format and SemVer 2.0.0 for releases
+globs:
+  - "**/CHANGELOG.md"
+  - "**/pyproject.toml"
+alwaysApply: false
+---
+
+# Changelog and versioning
+
+This project documents changes in [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) for version numbers. Follow those specs when adding entries, cutting releases, or editing `[project].version` in `pyproject.toml`.
+
+## Keep a Changelog (summary)
+
+- Use the standard change categories, in this order: **Added**, **Changed**, **Deprecated**, **Removed**, **Fixed**, **Security** (omit empty sections). Within an existing release, match the file’s current section order; for **new** release blocks, use this order.
+- Newest release sections go **at the top** (after any `[Unreleased]` block if you add one).
+- Each release: `## [X.Y.Z] - YYYY-MM-DD` (ISO 8601 date). Link definitions at the bottom of the file are optional but should stay in sync with tagged releases if present.
+- Entries are user-facing, imperative bullets (what changed for consumers), not commit dumps.
+
+## SemVer 2.0.0 (summary)
+
+- **MAJOR** — incompatible API/behavior; **MINOR** — backward-compatible functionality; **PATCH** — backward-compatible fixes.
+- Pre-release: e.g. `1.0.0-alpha.1` / `1.0.0-beta.2` / `1.0.0-rc.1` with identifiers after a hyphen. Build metadata: `+build` (e.g. `1.0.0+20260422`).
+- The same `X.Y.Z` must appear in the new `## [X.Y.Z]` heading and in `pyproject.toml` `[project].version` for that release (unless the project uses dynamic version only from tags—if so, do not leave them inconsistent).
+
+## References
+
+- [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) — full rules and philosophy.
+- [SemVer 2.0.0](https://semver.org/spec/v2.0.0.html) — version precedence and syntax.
