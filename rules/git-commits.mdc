@@ -1,0 +1,40 @@
+---
+description: Git commit message conventions for this project
+alwaysApply: true
+---
+
+# Git Commit Conventions
+
+## Use Conventional Commits
+
+All commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Common Types
+
+- `feat`: a new feature
+- `fix`: a bug fix
+- `docs`: documentation changes only
+- `style`: formatting, missing semicolons, etc. (no logic change)
+- `refactor`: code change that neither fixes a bug nor adds a feature
+- `test`: adding or updating tests
+- `chore`: build process, dependency updates, tooling
+
+### Examples
+
+```
+feat(uncertainty): add Monte Carlo dropout support
+
+fix(model): correct shape mismatch in forward pass
+
+refactor: simplify loss computation in training loop
+
+chore: update dependencies
+```

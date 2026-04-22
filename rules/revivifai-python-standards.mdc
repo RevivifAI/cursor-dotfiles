@@ -1,0 +1,59 @@
+---
+description: RevivifAI professional Python style for Python 3.12+ (PEP 8, typing, imports)
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# RevivifAI — Professional Python Standards
+
+## Language baseline
+
+Target **Python 3.12+** as declared in `pyproject.toml` (`requires-python`, `[tool.ruff]` `target-version`, `[tool.mypy]` `python_version`). Prefer features and idioms that are correct for that version.
+
+When unsure, treat these as authoritative:
+
+- [Python 3.12 documentation](https://docs.python.org/3/)
+- [What's New In Python 3.12](https://docs.python.org/3/whatsnew/3.12.html)
+- [PEP 8 – Style Guide for Python Code](https://peps.python.org/pep-0008/)
+- [Typing documentation](https://docs.python.org/3/library/typing.html) and [PEP 484](https://peps.python.org/pep-0484/) (annotations, `TYPE_CHECKING`, forward references)
+
+Project automation (Ruff, mypy, pytest) in `pyproject.toml` is the source of truth for enforced rules; align new code with those settings.
+
+## Imports and dependencies
+
+- Put **all imports at module scope** (top of the file), ordered and grouped consistently with Ruff/isort (`known-first-party` includes `artemis`).
+- **Do not** add `import` inside functions or methods for ordinary dependencies. If a name is only needed for type hints, use `from typing import TYPE_CHECKING` and guard imports under `if TYPE_CHECKING:` with **string annotations** or `from __future__ import annotations` as appropriate.
+- **Add or adjust dependencies in `pyproject.toml`** (and refresh the lockfile when the project uses one). Do not rely on imports of packages that are not declared project dependencies unless the file is clearly standalone and out of scope—prefer declaring the dependency.
+- Reserve lazy/runtime imports inside callables for **rare** cases (documented in a one-line comment): e.g. optional heavy extension, breaking circular import after structural fix is not yet possible. Default remains top-level imports.
+- **Unsloth import order:** In any module that imports **unsloth** together with **transformers** and/or **peft**, import **unsloth first**—before `transformers`, `peft`, and other third-party ML stack imports that Unsloth patches. Keep `from __future__ import ...` first when present (PEP 236), then Unsloth, then the rest. If Unsloth loads after those packages, it warns (`Unsloth should be imported before [transformers, peft]`) and optimizations may not apply (slower runs or higher memory use). If Ruff/isort would reorder these imports, use a targeted `# noqa` on that import block so the order stays correct.
+
+```python
+# BAD — import inside function hides dependency and hurts static analysis
+def train():
+    import torch
+    ...
+
+# GOOD — module scope; declare torch in pyproject.toml dependencies
+import torch
+
+def train() -> None:
+    ...
+```
+
+```python
+# GOOD — type-only dependency on a heavy or circular symbol
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from some_package import SomeClass
+
+def uses(x: SomeClass) -> None:
+    ...
+```
+
+## Docstrings and types
+
+- Use **Google-style** docstrings (matches `[tool.ruff.lint.pydocstyle]` `convention = "google"`).
+- Add type hints where they clarify public APIs and non-obvious values; respect mypy settings in `pyproject.toml`.

@@ -1,0 +1,42 @@
+---
+description: RevivifAI general code standards — comments, quality, research before new features, small sequential edits, forward-looking design, performance, security (OWASP)
+alwaysApply: true
+---
+
+# RevivifAI — General Code Standards
+
+These standards apply to **all** languages and surfaces in this repo (application code, configs, infra-as-code where relevant). For Python specifics, also follow `.cursor/rules/revivifai-python-standards.mdc`.
+
+## Comments
+
+- Keep comments **succinct** and **technical**: explain *why* or non-obvious *what*, not what the syntax already states.
+- Comments should read like polished internal documentation: **grammatically correct**, consistent tense, and free of typos.
+
+## Correctness and efficiency
+
+- Prefer clear, minimal solutions that are **correct by construction**: handle edge cases, validate assumptions at boundaries, and avoid speculative “fixes” that obscure behavior.
+- Target **bug-free** delivery: test critical paths, fail loudly on invalid state, and do not merge known defects.
+- Aim for implementations that are **maintainable and obviously right**—work you and reviewers can take **immense satisfaction** in owning, operating, and extending.
+
+## Research and editing
+
+- Always perform **online research** before implementing new features to verify APIs, package versions, documentation, etc.
+- Prefer **small, sequential edits** over re-generating entire files.
+
+## Forward-looking codebase
+
+- **Do not treat backwards compatibility as a default requirement.** Prefer the clearer API, the unified abstraction, and the decisive refactor over preserving obsolete surfaces, compatibility shims, or legacy call patterns when moving the design forward.
+- **Pioneer deliberately**: this repo should advance a coherent, modern architecture. Choose the better model, update call sites and configs as needed, and accept breaking changes when they reduce complexity and technical debt—while still honoring non-negotiables such as security and data integrity.
+
+## Performance
+
+- **Do not shy away from legitimate optimizations** when they measurably matter or clearly reduce hot-path cost: e.g. bitwise operations where appropriate, memoization/caching, batching I/O, choosing better algorithms or data structures.
+- **Prefer mature libraries** for well-scoped problems (parsing, crypto, serialization, HTTP, etc.) instead of hand-rolling subtle logic—after verifying license, maintenance, and fit.
+
+## Security (production code and environments)
+
+- Treat **security as a default requirement**, not an add-on: least privilege, safe defaults, strict validation of untrusted input, and secrets only via approved mechanisms (never in source control).
+- **Do not introduce or leave known vulnerabilities**: keep dependencies patched; avoid deprecated/insecure APIs; use vetted primitives (e.g. established crypto and auth libraries, not custom schemes).
+- Align with **OWASP Secure Coding Practices** and use the project checklist as a working reference: [OWASP Secure Coding Practices — Checklist](https://owasp.org/www-project-secure-coding-practices-quick-reference-guide/stable-en/02-checklist/05-checklist.html).
+
+When security trade-offs arise, choose the conservative option and document the threat model briefly if non-obvious.

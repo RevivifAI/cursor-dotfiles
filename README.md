@@ -1,0 +1,1 @@
+Clone this repo as the `.cursor` folder in your project!
