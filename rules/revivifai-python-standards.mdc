@@ -1,5 +1,5 @@
 ---
-description: RevivifAI professional Python style for Python 3.12+ (PEP 8, typing, imports)
+description: Always enforce RevivifAI professional Python style for Python 3.12+ (PEP 8, typing, imports)
 globs: "**/*.py"
 alwaysApply: false
 ---

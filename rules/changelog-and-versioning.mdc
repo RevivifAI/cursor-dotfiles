@@ -3,6 +3,7 @@ description: Use the "Keep a Changelog" 1.1.0 format and SemVer 2.0.0 for releas
 globs:
   - "**/CHANGELOG.md"
   - "**/pyproject.toml"
+  - ".github/**"
 alwaysApply: false
 ---
 

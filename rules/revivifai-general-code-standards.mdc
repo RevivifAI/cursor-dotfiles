@@ -1,5 +1,5 @@
 ---
-description: RevivifAI general code standards — comments, quality, research before new features, small sequential edits, forward-looking design, performance, security (OWASP)
+description: Always enforce RevivifAI general code standards
 alwaysApply: true
 ---
 
@@ -9,8 +9,8 @@ These standards apply to **all** programming languages in this repo (application
 
 ## Comments
 
-- Keep comments **succinct** and **technical**: explain *why* or non-obvious *what*, not what the syntax already states.
-- Comments should read like polished internal documentation: **grammatically correct**, consistent tense, and free of typos.
+- Keep comments **succinct** and **technical**: explain *whys* and non-obvious *whats*, not what the syntax already shows.
+- Comments should read like polished internal documentation: keep them **grammatically correct**, with consistent tense, and free of typos.
 
 ## Correctness and efficiency
 
@@ -23,10 +23,15 @@ These standards apply to **all** programming languages in this repo (application
 - Always perform **online research** before implementing new features to verify APIs, package versions, documentation, etc.
 - Prefer **small, sequential edits** over re-generating entire files.
 
+## Console and shell (agent runs)
+
+- **Run terminal and console commands outside the sandbox** (full host permissions / non-sandboxed execution) as the default for this repo. The goal is the same working directory, environment, network, and tooling the developer uses—so installs, tests, `git`, and similar commands behave predictably and do not fail for artificial restriction reasons.
+- If a step must run in a restricted environment, say so in the same turn and keep that exception narrow.
+
 ## Forward-looking codebase
 
-- **Do not treat backwards compatibility as a default requirement.** Prefer the clearer API, the unified abstraction, and the decisive refactor over preserving obsolete surfaces, compatibility shims, or legacy call patterns when moving the design forward.
-- **Pioneer deliberately**: this repo should advance a coherent, modern architecture. Choose the better model, update call sites and configs as needed, and accept breaking changes when they reduce complexity and technical debt—while still honoring non-negotiables such as security and data integrity.
+- **Backwards compatibility is not a default requirement.** Prefer a clean API, unified abstraction, and decisive refactoring over preserving shims and legacy patterns.
+- **Accept breaking changes** when they reduce complexity and tech debt—update call sites, configs, and docs accordingly.
 
 ## Performance
 
