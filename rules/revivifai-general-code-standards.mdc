@@ -18,6 +18,12 @@ These standards apply to **all** programming languages in this repo (application
 - Target **bug-free** delivery: test critical paths, fail loudly on invalid state, and do not merge known defects.
 - Aim for implementations that are **maintainable and obviously right**—work you and reviewers can take **immense satisfaction** in owning, operating, and extending.
 
+## Testing
+
+- **Distinguish unit tests from integration tests**: unit tests isolate small units with controlled doubles and fast feedback; integration tests exercise real boundaries (I/O, processes, external services) with clear scope and stability expectations.
+- **Use the latest test libraries and conventions** for the stack (assertion style, fixtures, async patterns, coverage, CI hooks)—verify against upstream docs rather than copying outdated examples.
+- **Do not bend tests around broken behavior**: assert what production should do; when behavior is wrong, fix the code or explicitly document and ticket a known gap—do not lock in defects with permissive expectations.
+
 ## Research and editing
 
 - Always perform **online research** before implementing new features to verify APIs, package versions, documentation, etc.
