@@ -1,16 +1,16 @@
 ---
-description: RevivifAI Python projects — Prek, Ruff, mandatory basedpyright (reference TOML)
+description: RevivifAI Python projects — Prek, Ruff, mypy, mandatory basedpyright (reference TOML)
 globs: "**/pyproject.toml,**/prek.toml"
 alwaysApply: false
 ---
 
 # RevivifAI — Python project standards
 
-Use **[Prek](https://prek.j178.dev/)** for pre-commit hook installation and management, **[Ruff](https://docs.astral.sh/ruff/)** for linting and formatting, and **[basedpyright](https://docs.basedpyright.com/)** for static analysis. Keep configuration consistent across dependency declarations and hook definitions.
+Use **[Prek](https://prek.j178.dev/)** for pre-commit hook installation and management, **[Ruff](https://docs.astral.sh/ruff/)** for linting and formatting, **[mypy](https://mypy.readthedocs.io/)** for existing strict type-check coverage where configured, and **[basedpyright](https://docs.basedpyright.com/)** for mandatory static analysis. Keep configuration consistent across dependency declarations, tool configuration, and hook definitions.
 
 ## Dependencies
 
-- **Required (dev):** **`prek`**, **`ruff`**, and **`basedpyright`**. Pin or bound versions deliberately so CI and local runs stay reproducible.
+- **Required (dev):** **`prek`**, **`ruff`**, **`mypy`**, and **`basedpyright`**. Pin or bound versions deliberately so CI and local runs stay reproducible.
 - Keep **`prek.toml`** hook **`rev`** values aligned with those packages (**`ruff-pre-commit`** ↔ **`ruff`**, **`basedpyright-prek-mirror`** ↔ **`basedpyright`**).
 
 ## `pyproject.toml` — Ruff
@@ -145,10 +145,31 @@ reportUnreachable = "error"
 
 Adjust **`include`** / **`exclude`** for your layout (src-layout, flat packages, generated stubs). Bump **`pythonVersion`** when the project’s baseline Python changes.
 
+## `pyproject.toml` — mypy
+
+- **Mandatory:** declare **`[tool.mypy]`** next to **`[tool.basedpyright]`** and run **`mypy`** locally and in CI / Nox / task checks. Adding **`basedpyright`** is not a reason to remove **`mypy`** or lower static-analysis coverage.
+- Match **`python_version`** to **`requires-python`**, set **`mypy_path`** / **`packages`** for the repo layout, and keep strictness deliberate (for example, **`strict = true`** for typed application packages).
+- Third-party missing-import exceptions belong in narrow **`[[tool.mypy.overrides]]`** blocks. Prefer specific module names over broad wildcard ignores, and remove overrides when upstream stubs become available.
+
+### Reference `[tool.mypy]` configuration
+
+```toml
+[tool.mypy]
+python_version = "3.12"
+strict = true
+mypy_path = "src"
+packages = ["your_package"]
+warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["third_party_without_stubs"]
+ignore_missing_imports = true
+```
+
 ## `prek.toml`
 
 - Keep a root **`prek.toml`** (Prek’s native config; see [Prek](https://prek.j178.dev/)). Match **`default_language_version.python`** to **`requires-python`** / **`[tool.ruff]`** **`target-version`**.
-- The reference block below is the RevivifAI baseline: **`pre-commit-hooks`** hygiene, a **local** **`pygrep`** hook banning em dashes in Python, **Ruff** via **`ruff-pre-commit`**, and **basedpyright** via **`DetachHead/basedpyright-prek-mirror`**. **Do not remove** the **basedpyright** mirror block; adjust only **`rev`** when upgrading **`basedpyright`**. You may trim optional hygiene hooks if justified, but keep **`ruff-pre-commit`** and **basedpyright** **`rev`** values aligned with dev dependencies.
+- The reference block below is the RevivifAI baseline: **`pre-commit-hooks`** hygiene, a **local** **`pygrep`** hook banning em dashes in Python, a **local** **`mypy`** hook run through **`uv run mypy`**, **Ruff** via **`ruff-pre-commit`**, and **basedpyright** via **`DetachHead/basedpyright-prek-mirror`**. **Do not remove** the **mypy** or **basedpyright** checks. You may trim optional hygiene hooks if justified, but keep **`ruff-pre-commit`** and **basedpyright** **`rev`** values aligned with dev dependencies.
 
 ### Reference `prek.toml` configuration
 
@@ -227,6 +248,14 @@ language = "pygrep"
 entry = "—"
 types = ["python"]
 
+[[repos.hooks]]
+id = "mypy"
+name = "mypy"
+language = "system"
+entry = "uv run mypy"
+pass_filenames = false
+always_run = true
+
 # ---------------------------------------------------------------------------
 # astral-sh/ruff-pre-commit
 # ---------------------------------------------------------------------------
@@ -258,15 +287,16 @@ always_run = true
 
 ## Version alignment checklist
 
-When bumping Ruff, Prek, or basedpyright:
+When bumping Ruff, Prek, mypy, or basedpyright:
 
-1. Update dev dependency constraints (**`ruff`**, **`prek`**, **`basedpyright`**).
+1. Update dev dependency constraints (**`ruff`**, **`prek`**, **`mypy`**, **`basedpyright`**).
 2. Update **`minimum_prek_version`** when adopting a newer Prek baseline.
 3. Update **`pre-commit-hooks`** **`rev`** when bumping that bundle (follow upstream tags).
 4. Update **`ruff-pre-commit`** **`rev`** to match the **`ruff`** release line you use.
 5. Update **`basedpyright-prek-mirror`** **`rev`** to match the **`basedpyright`** version you depend on.
-6. Re-run **`prek`** install/update so installed hooks match the repo config.
+6. Re-run **`mypy`** when changing **`[tool.mypy]`**, dependency stubs, Python versions, or typed package layout.
+7. Re-run **`prek`** install/update so installed hooks match the repo config.
 
 ## Bootstrap
 
-After cloning, contributors should install dev dependencies, run **`basedpyright`** (or rely on the Prek hook) against **`[tool.basedpyright]`**, and install hooks with Prek’s documented workflow so local commits match CI.
+After cloning, contributors should install dev dependencies, run **`basedpyright`** (or rely on the Prek hook) against **`[tool.basedpyright]`**, run **`mypy`** against **`[tool.mypy]`**, and install hooks with Prek’s documented workflow so local commits match CI.
