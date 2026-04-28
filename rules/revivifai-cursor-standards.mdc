@@ -1,0 +1,46 @@
+---
+description: RevivifAI Cursor standards — plans, todos, and subagent use
+alwaysApply: true
+---
+
+# RevivifAI Cursor Standards
+
+## Plans and technical todo specifications
+
+When you produce a **plan** in Cursor (structured steps or todo list before implementation), **every todo item must carry enough technical detail that another engineer could execute it without guessing**.
+
+### Required in each todo
+
+- **Scope**: exact paths, modules, or symbols to touch (or explicitly “new file at `path`”).
+- **Behavior**: what changes functionally — inputs, outputs, side effects, config keys, CLI flags.
+- **Constraints**: invariants to preserve, compatibility (APIs, schema), performance or security notes if relevant.
+- **Done means**: acceptance checks — tests to add/update, manual verification steps, or observable outcomes.
+
+If information is unknown, the todo must say **what to discover first** and **how** (e.g. “read `orders/service.py` `submit` and list call sites before changing the signature”).
+
+### Examples
+
+```markdown
+❌ BAD
+- [ ] Fix the auth bug
+- [ ] Add tests for rate limiting
+
+✅ GOOD
+- [ ] In `src/orders/service.py`, map upstream HTTP `402` to `PaymentRequiredError` instead of a generic `APIError`. Touch `retry_policy.py` only if it branches on exception class. Done: `tests/orders/test_service.py` asserts the new mapping; existing success and 404 cases unchanged.
+
+- [ ] In `tests/middleware/test_rate_limit.py`, cover `limit=None` (disabled): no `X-RateLimit-*` headers and handler runs once per request. Reuse the `build_app` fixture from that file. Done: new test `test_rate_limit_disabled_when_limit_none`.
+```
+
+### Anti-patterns
+
+- Single-word or title-only todos (“Refactor cache”, “Wire up billing”).
+- “Handle edge cases” without naming which cases and expected behavior.
+- Duplicating a high-level goal without decomposing into verifiable substeps.
+
+Keep the plan readable: **one primary technical intent per todo**, split if it mixes unrelated files or unrelated acceptance criteria.
+
+## Subagents
+
+Treat subagents as **independent operators**: they can plan, reason about scope, and carry **multiple** technical tasks (exploration, analysis, parallel implementation tracks, command execution where appropriate) without the parent micromanaging each file open.
+
+**Do not** spin up a subagent mainly to scan the repo or hunt a symbol when **`grep` / `rg`**, a targeted codebase search, or a one-shot shell pipeline would be faster and clearer. Use subagents when the work benefits from autonomous multi-step investigation, concurrent execution alongside the parent, or a bounded subproblem with its own success criteria—not as a fancy file indexer.
