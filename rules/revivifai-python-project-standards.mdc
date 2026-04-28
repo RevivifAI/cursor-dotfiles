@@ -1,0 +1,272 @@
+---
+description: RevivifAI Python projects — Prek, Ruff, mandatory basedpyright (reference TOML)
+globs: "**/pyproject.toml,**/prek.toml"
+alwaysApply: false
+---
+
+# RevivifAI — Python project standards
+
+Use **[Prek](https://prek.j178.dev/)** for pre-commit hook installation and management, **[Ruff](https://docs.astral.sh/ruff/)** for linting and formatting, and **[basedpyright](https://docs.basedpyright.com/)** for static analysis. Keep configuration consistent across dependency declarations and hook definitions.
+
+## Dependencies
+
+- **Required (dev):** **`prek`**, **`ruff`**, and **`basedpyright`**. Pin or bound versions deliberately so CI and local runs stay reproducible.
+- Keep **`prek.toml`** hook **`rev`** values aligned with those packages (**`ruff-pre-commit`** ↔ **`ruff`**, **`basedpyright-prek-mirror`** ↔ **`basedpyright`**).
+
+## `pyproject.toml` — Ruff
+
+- Put **`[tool.ruff]`** (and nested tables) in **`pyproject.toml`** as the single source of truth. Run **`ruff check`** and **`ruff format`** locally or in CI using that config.
+- The reference **`[tool.ruff]`** block below matches RevivifAI’s chosen rule sets and formatter options. Copy it into new projects, then set **`extend-exclude`**, **`[tool.ruff.lint.isort]`** **`known-first-party`**, and **`[tool.ruff.lint.per-file-ignores`** for each repository’s layout (package name, scripts/tests paths, generated or vendored trees).
+
+### Reference `[tool.ruff]` configuration
+
+```toml
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+preview = true
+extend-exclude = [
+    "build",
+    "dist",
+    ".venv",
+    ".mypy_cache",
+    ".ruff_cache",
+    # Add paths local to the repo (generated artifacts, caches, vendored trees).
+]
+
+[tool.ruff.lint]
+# Professional rule selection. See: https://docs.astral.sh/ruff/rules/
+#
+# Unreachable-code note: PLW0101 (control-flow-graph-based unreachable detection)
+# is implemented in Ruff's source but remains in an internal "testing" gate as of
+# 0.15.11 and is not yet exposed via any public selector. Once it is promoted to
+# preview/stable it will be activated automatically by ``preview = true`` +
+# ``"PL"`` below — no config change will be needed.
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "N",      # pep8-naming
+    "UP",     # pyupgrade
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "SIM",    # flake8-simplify
+    "TID",    # flake8-tidy-imports
+    "PL",     # Pylint
+    "RUF",    # Ruff-specific rules
+    "PERF",   # Perflint
+    "PIE",    # flake8-pie
+    "RET",    # flake8-return
+    "PTH",    # flake8-use-pathlib
+    "ARG",    # flake8-unused-arguments
+    "ERA",    # eradicate (commented-out code)
+    "YTT",    # flake8-2020
+    "ASYNC",  # flake8-async
+    "FBT",    # flake8-boolean-trap
+    "ICN",    # flake8-import-conventions
+    "T20",    # flake8-print
+    "ISC",    # flake8-implicit-str-concat
+    "G",      # flake8-logging-format
+    "Q",      # flake8-quotes
+    "S",      # flake8-bandit (security)
+    "D",      # pydocstyle
+    "DOC",    # pydoclint (docstring ↔ signature consistency)
+]
+ignore = [
+    "D100",    # Missing module docstring (internal modules don't need them everywhere)
+    "D104",    # Missing package docstring in __init__
+    "D105",    # Missing docstring in magic method
+    "D107",    # Missing docstring in __init__
+    "D203",    # Conflicts with D211 (no blank line before class)
+    "D213",    # Conflicts with D212 (multi-line summary first line)
+    "E501",    # Line length handled by the formatter
+    "ISC001",  # Disabled to avoid conflict with the formatter
+    "PLR0911", # Too many return statements (decision-heavy ML code)
+    "PLR0913", # Too many arguments (common in ML configs)
+    "PLR0912", # Too many branches
+    "PLR0914", # Too many local variables (research scripts routinely exceed 15)
+    "PLR0915", # Too many statements
+    "PLR2004", # Magic value used in comparison (noisy for numeric ML code)
+    "S101",    # Use of assert (fine in research/tests)
+    "FBT001",  # Boolean positional arg (common in torch/HF APIs)
+    "FBT002",  # Boolean default positional arg
+    # ML / research-code idioms
+    "G004",    # Logging f-strings: idiomatic and readable; lazy %-formatting is a micro-optimisation here
+    "G003",    # Logging string concatenation: same rationale as G004
+    "N803",    # Argument names follow linear-algebra conventions (X, W, Q, ...)
+    "N806",    # Local variable names follow linear-algebra conventions (W, U, S, V, D, Q, ...)
+    "N812",    # Conventional aliases (e.g. `import torch.nn.functional as F`)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Examples only — add globs that match your CLI modules, scripts, and tests.
+"tests/**/*.py" = ["S", "D", "PLR", "ARG"]
+"**/__init__.py" = ["F401", "D"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["your_package"]
+combine-as-imports = true
+split-on-trailing-comma = true
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.pylint]
+max-args = 10
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+docstring-code-format = true
+skip-magic-trailing-comma = false
+```
+
+## `pyproject.toml` — basedpyright
+
+- **Mandatory:** declare **`[tool.basedpyright]`** next to **`[tool.ruff]`**. Set **`include`** (and **`exclude`** if needed) so all first-party Python under development is analyzed; set **`pythonVersion`** to match **`requires-python`** / **`[tool.ruff]`** **`target-version`**. Choose **`typeCheckingMode`** deliberately (**`standard`** or **`strict`** for typed codebases; document in config if you must start from **`off`** during a migration).
+- Run **`basedpyright`** locally and in CI (same config as **`[tool.basedpyright]`**). Promote at least **`reportUnreachable = "error"`** unless a short-lived exception is documented in **`pyproject.toml`**.
+- The hook in **`prek.toml`** must stay enabled so commits run the same analysis.
+
+### Reference `[tool.basedpyright]` configuration
+
+```toml
+[tool.basedpyright]
+include = ["src"]
+# exclude = ["tests", "build", "dist"]
+pythonVersion = "3.12"
+typeCheckingMode = "standard"
+reportUnreachable = "error"
+```
+
+Adjust **`include`** / **`exclude`** for your layout (src-layout, flat packages, generated stubs). Bump **`pythonVersion`** when the project’s baseline Python changes.
+
+## `prek.toml`
+
+- Keep a root **`prek.toml`** (Prek’s native config; see [Prek](https://prek.j178.dev/)). Match **`default_language_version.python`** to **`requires-python`** / **`[tool.ruff]`** **`target-version`**.
+- The reference block below is the RevivifAI baseline: **`pre-commit-hooks`** hygiene, a **local** **`pygrep`** hook banning em dashes in Python, **Ruff** via **`ruff-pre-commit`**, and **basedpyright** via **`DetachHead/basedpyright-prek-mirror`**. **Do not remove** the **basedpyright** mirror block; adjust only **`rev`** when upgrading **`basedpyright`**. You may trim optional hygiene hooks if justified, but keep **`ruff-pre-commit`** and **basedpyright** **`rev`** values aligned with dev dependencies.
+
+### Reference `prek.toml` configuration
+
+```toml
+minimum_prek_version = "0.3.9"
+default_language_version.python = "3.12"
+default_install_hook_types = ["pre-commit"]
+default_stages = ["pre-commit"]
+fail_fast = false
+
+# ---------------------------------------------------------------------------
+# pre-commit/pre-commit-hooks
+# ---------------------------------------------------------------------------
+[[repos]]
+repo = "https://github.com/pre-commit/pre-commit-hooks"
+rev = "v6.0.0"
+
+[[repos.hooks]]
+id = "check-added-large-files"
+args = ["--maxkb=20480"]
+
+[[repos.hooks]]
+id = "check-case-conflict"
+
+[[repos.hooks]]
+id = "check-merge-conflict"
+
+[[repos.hooks]]
+id = "check-toml"
+
+[[repos.hooks]]
+id = "check-yaml"
+
+[[repos.hooks]]
+id = "check-json"
+
+[[repos.hooks]]
+id = "check-executables-have-shebangs"
+
+[[repos.hooks]]
+id = "check-shebang-scripts-are-executable"
+
+[[repos.hooks]]
+id = "check-symlinks"
+
+[[repos.hooks]]
+id = "destroyed-symlinks"
+
+[[repos.hooks]]
+id = "detect-private-key"
+
+[[repos.hooks]]
+id = "end-of-file-fixer"
+
+[[repos.hooks]]
+id = "trailing-whitespace"
+args = ["--markdown-linebreak-ext=md"]
+
+[[repos.hooks]]
+id = "mixed-line-ending"
+args = ["--fix=lf"]
+
+[[repos.hooks]]
+id = "debug-statements"
+
+# ---------------------------------------------------------------------------
+# local
+# ---------------------------------------------------------------------------
+[[repos]]
+repo = "local"
+
+[[repos.hooks]]
+id = "no-em-dash"
+name = "Forbid em dashes (U+2014) in Python source"
+language = "pygrep"
+entry = "—"
+types = ["python"]
+
+# ---------------------------------------------------------------------------
+# astral-sh/ruff-pre-commit
+# ---------------------------------------------------------------------------
+[[repos]]
+repo = "https://github.com/astral-sh/ruff-pre-commit"
+rev = "v0.15.11"
+
+[[repos.hooks]]
+id = "ruff-check"
+args = ["--fix", "--exit-non-zero-on-fix"]
+types_or = ["python", "pyi"]
+
+[[repos.hooks]]
+id = "ruff-format"
+types_or = ["python", "pyi"]
+
+# ---------------------------------------------------------------------------
+# DetachHead/basedpyright-prek-mirror
+# ---------------------------------------------------------------------------
+[[repos]]
+repo = "https://github.com/DetachHead/basedpyright-prek-mirror"
+rev = "1.39.2"
+
+[[repos.hooks]]
+id = "basedpyright"
+pass_filenames = false
+always_run = true
+```
+
+## Version alignment checklist
+
+When bumping Ruff, Prek, or basedpyright:
+
+1. Update dev dependency constraints (**`ruff`**, **`prek`**, **`basedpyright`**).
+2. Update **`minimum_prek_version`** when adopting a newer Prek baseline.
+3. Update **`pre-commit-hooks`** **`rev`** when bumping that bundle (follow upstream tags).
+4. Update **`ruff-pre-commit`** **`rev`** to match the **`ruff`** release line you use.
+5. Update **`basedpyright-prek-mirror`** **`rev`** to match the **`basedpyright`** version you depend on.
+6. Re-run **`prek`** install/update so installed hooks match the repo config.
+
+## Bootstrap
+
+After cloning, contributors should install dev dependencies, run **`basedpyright`** (or rely on the Prek hook) against **`[tool.basedpyright]`**, and install hooks with Prek’s documented workflow so local commits match CI.
