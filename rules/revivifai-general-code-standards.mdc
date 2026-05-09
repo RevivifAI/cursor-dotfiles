@@ -33,6 +33,7 @@ These standards apply to **all** programming languages in this repo (application
 
 - **Run terminal and console commands outside the sandbox** (full host permissions / non-sandboxed execution) as the default for this repo. The goal is the same working directory, environment, network, and tooling the developer uses—so installs, tests, `git`, and similar commands behave predictably and do not fail for artificial restriction reasons.
 - If a step must run in a restricted environment, say so in the same turn and keep that exception narrow.
+- On **Linux**, when a command requires elevated privileges (e.g., installing system packages), prefer **`pkexec`** instead of bare **`sudo`**. Many agent environments are non-interactive and lack a TTY or password prompt, causing `sudo` to hang or fail. `pkexec` integrates with the desktop's polkit agent and works reliably in graphical sessions.
 
 ## Forward-looking codebase
 
