@@ -1,0 +1,100 @@
+---
+description: Use the "Keep a Changelog" 1.1.0 format and SemVer 2.0.0 for releases
+globs:
+  - "**/CHANGELOG.md"
+  - "**/HISTORY.md"
+  - "**/RELEASES.md"
+  - "**/pyproject.toml"
+  - "**/setup.py"
+  - "**/setup.cfg"
+  - "**/package.json"
+  - "**/Cargo.toml"
+  - "**/composer.json"
+  - "**/*.gemspec"
+  - "**/version.rb"
+  - "**/pom.xml"
+  - "**/*.properties"
+  - "**/build.gradle"
+  - "**/build.gradle.kts"
+  - "**/Chart.yaml"
+  - ".github/**"
+alwaysApply: false
+---
+
+# Changelog and versioning
+
+This project documents changes in [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format and uses [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html) for version numbers. Follow those specs when adding entries, cutting releases, or editing version fields in package manifests.
+
+## Keep a Changelog (summary)
+
+- Use the standard change categories, in this order: **Added**, **Changed**, **Deprecated**, **Removed**, **Fixed**, **Security** (omit empty sections). Within an existing release, match the file’s current section order; for **new** release blocks, use this order.
+- Newest release sections go **at the top** (after any `[Unreleased]` block if you add one).
+- Each release: `## [X.Y.Z] - YYYY-MM-DD` (ISO 8601 date). Link definitions at the bottom of the file are optional but should stay in sync with tagged releases if present.
+- Entries are user-facing, imperative bullets (what changed for consumers), not commit dumps.
+
+## Language-specific version locations
+
+When updating versions, edit the appropriate manifest file(s) for the language ecosystem:
+
+### Python
+
+- **`pyproject.toml`**: Primary manifest. Edit `[project].version` (e.g., `version = "1.2.3"`).
+- **`setup.py`**: Legacy manifest. Update `version=` argument in `setup()`, or `__version__` variable if defined.
+- **`setup.cfg`**: Legacy manifest. Update `version =` under `[metadata]` section.
+- **Dynamic versioning**: If using `setuptools_scm`, `hatch-vcs`, or similar, the version is derived from VCS tags—do not edit manually. Ensure git tags follow SemVer (e.g., `v1.2.3`).
+
+### JavaScript / TypeScript / Node.js
+
+- **`package.json`**: Primary manifest. Edit `"version"` field in the top-level JSON object.
+- **Version bump commands** (create git tag atomically):
+  - npm: `npm version <patch|minor|major>`
+  - pnpm: `pnpm version <patch|minor|major>`
+  - Yarn: `yarn version <patch|minor|major>` (Yarn 1) or `yarn npm version <patch|minor|major>` (Yarn 2+)
+- **Workspace considerations**: For monorepos using npm/pnpm/yarn workspaces, version changes typically apply at the root or per-package level depending on the release strategy. Tools like `changesets` or `lerna` can coordinate multi-package versioning.
+
+### Rust
+
+- **`Cargo.toml`**: Primary manifest. Edit `version =` under `[package]` section.
+- Use `cargo install cargo-release` for automated version bumping and publishing.
+
+### PHP (Composer)
+
+- **`composer.json`**: Primary manifest. Edit `"version"` field (if present) or rely on VCS tags for versioning.
+- Prefer VCS-based versioning (tags) over embedding version in `composer.json` for libraries.
+
+### Ruby (RubyGems)
+
+- **`*.gemspec`**: Primary manifest. Edit `spec.version =` or `spec.version` assignment.
+- **`lib/*/version.rb`**: Common pattern. Update `VERSION` constant when this file exists.
+- Use `bundle exec rake release` or similar for version bump + tag + push workflow.
+
+### Java (Maven)
+
+- **`pom.xml`**: Primary manifest. Edit `<version>` element under `<project>`.
+- For multi-module projects, update parent `<version>` and `<parent><version>` in child modules consistently.
+- Use `mvn versions:set -DnewVersion=X.Y.Z` for automated version updates across modules.
+
+### Java (Gradle)
+
+- **`build.gradle`** / **`build.gradle.kts`**: Primary manifest. Update `version =` property or `version` in the project/extension block.
+- For multi-module projects, update `rootProject.version` and propagate to subprojects if needed.
+
+### Helm (Kubernetes)
+
+- **`Chart.yaml`**: Primary manifest. Edit `version:` field (chart version) and `appVersion:` (application version) separately as needed.
+
+## CI/CD release workflow
+
+When cutting a release:
+
+1. Update version in all relevant manifests (see language-specific sections above).
+2. Update `CHANGELOG.md` with release notes under `## [X.Y.Z] - YYYY-MM-DD`.
+3. Commit with message: `chore(release): vX.Y.Z` (follow Conventional Commits).
+4. Tag the commit: `git tag vX.Y.Z`.
+5. Push commit and tag: `git push && git push --tags`.
+6. CI/CD should handle publishing (PyPI, npm, crates.io, etc.) based on the tag.
+
+# References
+
+- [Keep a Changelog 1.1.0](https://keepachangelog.com/en/1.1.0/) — full rules and philosophy.
+- [SemVer 2.0.0](https://semver.org/spec/v2.0.0.html) — version precedence and syntax.

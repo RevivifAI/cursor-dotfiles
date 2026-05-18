@@ -1,0 +1,61 @@
+---
+description: Git conventions for this project
+alwaysApply: true
+---
+
+# Git Commit Conventions
+
+## Use Conventional Commits
+
+All commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification:
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Types
+
+Based on [@commitlint/config-conventional](https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional):
+
+- `build`: changes that affect the build system or external dependencies
+- `chore`: maintenance tasks, dependency updates, tooling changes
+- `ci`: changes to CI configuration files and scripts
+- `docs`: documentation changes only
+- `feat`: a new feature
+- `fix`: a bug fix
+- `perf`: a code change that improves performance
+- `refactor`: code change that neither fixes a bug nor adds a feature
+- `revert`: reverts a previous commit
+- `style`: formatting, missing semicolons, etc. (no logic change)
+- `test`: adding or updating tests
+
+### Examples
+
+```
+feat(uncertainty): add Monte Carlo dropout support
+
+fix(model): correct shape mismatch in forward pass
+
+refactor: simplify loss computation in training loop
+
+chore: update dependencies
+```
+
+## Changelog Updates
+
+Before making a commit, check if `CHANGELOG.md` needs updating:
+
+1. **Determine if the change warrants a changelog entry**: User-facing changes, new features, bug fixes, deprecations, and breaking changes should be documented.
+2. **Check if the changelog already reflects this change**: Review the `[Unreleased]` section or relevant release section.
+3. **Add an entry if missing**: Under the appropriate category (`Added`, `Changed`, `Deprecated`, `Removed`, `Fixed`, `Security`), add a concise, user-facing bullet point describing the change.
+4. **Stage the changelog update together with the code changes**: Include `CHANGELOG.md` in the same commit so the documentation stays synchronized with the code.
+
+Skip changelog updates for internal changes that are relatively insignificant (e.g., test improvements, documentation typos).
+
+## Versioning
+
+Tags and releases must follow [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html): `MAJOR.MINOR.PATCH` (e.g., `v1.2.3`). Pre-release identifiers follow the version with a hyphen (e.g., `v1.0.0-alpha.1`).
