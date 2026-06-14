@@ -1,0 +1,8 @@
+---
+description: RevivifAI Command Line standards
+alwaysApply: true
+---
+
+Determine the CLI environment before running any commands, i.e. Powershell, bash, etc.
+
+Use uninteractive commands (e.g. adding `--no-pager` to `git diff`) unless explicitly told otherwise. Report any interactive process(es) required, and let the user handle it/them.

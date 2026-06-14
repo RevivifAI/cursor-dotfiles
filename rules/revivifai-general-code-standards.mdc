@@ -11,6 +11,7 @@ These standards apply to **all** programming languages in this repo (application
 
 - Keep comments **succinct** and **technical**: explain *whys* and non-obvious *whats*, not what the syntax already shows.
 - Comments should read like polished internal documentation: keep them **grammatically correct**, with consistent tense, and free of typos.
+- Avoid em dashes at all costs: coherent prose should always be the highest priority.
 
 ## Correctness and efficiency
 
