@@ -1,0 +1,65 @@
+---
+description: Always enforce RevivifAI professional TypeScript style for TypeScript 6.x
+globs: "**/*.ts"
+alwaysApply: false
+---
+
+# RevivifAI — Professional TypeScript Standards
+
+## Language baseline
+
+Target **TypeScript 6.x** or as declared in `tsconfig.json`. Prefer features and idioms that are correct for that version.
+
+When unsure, treat these as authoritative:
+
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/)
+- [TypeScript 6.0 Release Notes](https://devblogs.microsoft.com/typescript/announcing-typescript-6-0/)
+- [TypeScript 5.0 Release Notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-0.html)
+- [TypeScript 5.2 Release Notes](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-5-2.html)
+
+Project automation (ESLint, Prettier) in configuration files is the source of truth for enforced rules; align new code with those settings.
+
+## Array indexing
+
+Prefer `.at()` for accessing array elements by index, especially when the index may be out of bounds or comes from a variable. The `.at()` method:
+
+- Returns `undefined` for out-of-bounds indices instead of creating a hole or accessing prototype
+- Supports negative indices for accessing from the end
+- Avoids triggering `security/detect-object-injection` ESLint rules
+- Is idiomatic and self-documenting
+
+```typescript
+// BAD — bracket notation can trigger security warnings and prototype pollution
+const first = arr[0];
+const last = arr[arr.length - 1];
+const item = arr[index];
+
+// GOOD — .at() is safe, idiomatic, and handles bounds gracefully
+const first = arr.at(0);
+const last = arr.at(-1);
+const item = arr.at(index);
+```
+
+Use bracket notation only when:
+
+- The index is a literal number and the array length is known (e.g., tuple destructuring)
+- Performance is critical in a hot loop and bounds are guaranteed
+
+```typescript
+// ACCEPTABLE — literal index on a known-length tuple
+const [a, b] = pair;
+const point = coordinates[0]; // where coordinates is [number, number, number]
+```
+
+## Types and interfaces
+
+- Prefer `interface` for object shapes that may be extended.
+- Prefer `type` for unions, intersections, and mapped types.
+- Use `readonly` for immutable arrays and objects.
+- Avoid `any`; use `unknown` when the type is truly unknown and narrow with type guards.
+
+## Imports
+
+- Use named imports preferentially.
+- Use `import type` for type-only imports to avoid runtime overhead.
+- Group imports logically: built-ins, external packages, internal modules.
